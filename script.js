@@ -51,37 +51,52 @@ function showNotification(title, body) {
 // ========== ⬆️ จบฟังก์ชัน ⬆️ ==========
 
 
-// ฟังก์ชันโหลดวิชาจาก db.json (เหมือนเดิม)
+// =========================================================================
+// ✏️ ส่วนที่ได้รับการแก้ไข: ฟังก์ชันโหลดวิชา (รองรับข้อมูลที่ฝังใน HTML)
+// =========================================================================
 async function loadSubjects() {
-    try {
-        const response = await fetch('db.json'); 
-        if (!response.ok) {
-            throw new Error('ไม่สามารถโหลดไฟล์ db.json ได้');
+    // 1. ตรวจสอบว่ามีตัวแปร SUBJECT_DATA ที่ฝังมาจาก index.html หรือไม่
+    // (ตัวแปรนี้ถูกเพิ่มใน index.html เพื่อแก้ปัญหา CORS เมื่อเปิดไฟล์แบบ local)
+    if (typeof SUBJECT_DATA !== 'undefined') {
+        subjectsList = SUBJECT_DATA;
+    } else {
+        // 2. [Fallback]: ถ้าไม่มีข้อมูลฝังไว้ (เช่น ใน Production ที่ถูก Deploy แล้ว) 
+        // ให้พยายาม Fetch ไฟล์ db.json ตามโค้ดเดิม
+        try {
+            const response = await fetch('db.json'); 
+            if (!response.ok) {
+                throw new Error('ไม่สามารถโหลดไฟล์ db.json ได้');
+            }
+            subjectsList = await response.json();
+        } catch (error) {
+            console.error('เกิดข้อผิดพลาดในการโหลดวิชา: ไม่พบข้อมูล SUBJECT_DATA หรือไม่สามารถ fetch db.json ได้', error);
+            const subjectDropdown = document.getElementById('taskSubject');
+            subjectDropdown.innerHTML = '<option value="other">ไม่พบรายวิชา (พิมพ์เอง)</option>';
+            checkOtherSubject(subjectDropdown);
+            return; // หยุดการทำงานถ้าโหลดไม่ได้จริงๆ
         }
-        subjectsList = await response.json();
-        
-        const subjectDropdown = document.getElementById('taskSubject');
-        subjectDropdown.innerHTML = ''; 
-        
-        subjectsList.forEach(subject => {
-            const option = document.createElement('option');
-            option.value = subject.name; 
-            option.textContent = subject.name;
-            subjectDropdown.appendChild(option);
-        });
-        
-        const otherOption = document.createElement('option');
-        otherOption.value = 'other';
-        otherOption.textContent = 'วิชาอื่นๆ (พิมพ์เอง)';
-        subjectDropdown.appendChild(otherOption);
-
-    } catch (error) {
-        console.error(error);
-        const subjectDropdown = document.getElementById('taskSubject');
-        subjectDropdown.innerHTML = '<option value="other">ไม่พบรายวิชา (พิมพ์เอง)</option>';
-        checkOtherSubject(subjectDropdown);
     }
+
+    // 3. แสดงผลใน Dropdown
+    const subjectDropdown = document.getElementById('taskSubject');
+    subjectDropdown.innerHTML = ''; 
+    
+    // เพิ่มตัวเลือกวิชาทั้งหมด
+    subjectsList.forEach(subject => {
+        const option = document.createElement('option');
+        option.value = subject.name; 
+        option.textContent = subject.name;
+        subjectDropdown.appendChild(option);
+    });
+    
+    // เพิ่มตัวเลือก "วิชาอื่นๆ (พิมพ์เอง)"
+    const otherOption = document.createElement('option');
+    otherOption.value = 'other';
+    otherOption.textContent = 'วิชาอื่นๆ (พิมพ์เอง)';
+    subjectDropdown.appendChild(otherOption);
 }
+// =========================================================================
+
 
 // ฟังก์ชันสำหรับ Dropdown วิชา (เหมือนเดิม)
 function checkOtherSubject(selectElement) {
@@ -375,7 +390,7 @@ function editTask(taskId) {
 }
 
 
-// ========== ⬇️ แก้ไข 4 ฟังก์ชันนี้ ⬇️ ==========
+// ========== ⬇️ แก้ไข 4 ฟังก์ชันนี้ (ใช้ showNotification แทน alert) ⬇️ ==========
 // (เปลี่ยนจาก alert(message) เป็น showNotification(title, body))
 
 async function checkTodayTasks() {
@@ -421,7 +436,7 @@ async function checkUpcomingTasks() {
     } else {
         body = `มีงานที่จะถึงกำหนด ${upcomingTasks.length} งาน:\n`;
         upcomingTasks.forEach((task, index) => {
-            const dueDate = new Date(t.due + 'T00:00:00');
+            const dueDate = new Date(task.due + 'T00:00:00');
             const daysLeft = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
             body += `\n${index + 1}. ${task.name} (เหลืออีก ${daysLeft} วัน)`;
         });
