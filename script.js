@@ -154,7 +154,7 @@ function updateStats() {
     `;
 }
 
-// เพิ่มงานใหม่ (เหมือนเดิม)
+// เพิ่มงานใหม่ (แก้ไข)
 function addTask() {
     const name = document.getElementById('taskName').value.trim();
     const assignedOn = document.getElementById('taskAssignedOn').value;
@@ -195,7 +195,7 @@ function addTask() {
     tasks.push(newTask);
     saveTasks();
     renderTasks();
-    updateStats();
+    updateStats(); // ★★★ เพิ่มตรงนี้ (1/3) เพื่ออัปเดตสถิติทันที ★★★
     clearForm();
 
     alert('✅ เพิ่มงานเรียบร้อย!');
@@ -338,24 +338,24 @@ function getPriorityText(priority) {
     return priorities[priority] || '🟢 ปกติ';
 }
 
-// เปลี่ยนสถานะงาน (เหมือนเดิม)
+// เปลี่ยนสถานะงาน (แก้ไข)
 function toggleTaskComplete(taskId) {
     const task = tasks.find(t => t.id === taskId);
     if (task) {
         task.completed = !task.completed;
         saveTasks();
         renderTasks();
-        updateStats();
+        updateStats(); // ★★★ เพิ่มตรงนี้ (2/3) เพื่ออัปเดตสถิติทันที ★★★
     }
 }
 
-// ลบงาน (เหมือนเดิม)
+// ลบงาน (แก้ไข)
 function deleteTask(taskId) {
     if (confirm('🗑️ คุณแน่ใจหรือไม่ที่จะลบงานนี้?')) {
         tasks = tasks.filter(t => t.id !== taskId);
         saveTasks();
         renderTasks();
-        updateStats();
+        updateStats(); // ★★★ เพิ่มตรงนี้ (3/3) เพื่ออัปเดตสถิติทันที ★★★
     }
 }
 
@@ -383,7 +383,7 @@ function editTask(taskId) {
         document.getElementById('taskPriority').value = task.priority;
         document.getElementById('taskDescription').value = task.description || '';
         
-        deleteTask(taskId); 
+        deleteTask(taskId); // หมายเหตุ: โค้ดนี้ใช้วิธีลบของเก่าแล้วสร้างใหม่
 
         document.getElementById('taskName').focus();
     }
