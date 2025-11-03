@@ -362,33 +362,46 @@ body {
     color: #2E7D32;
 }
 
+/* ★★★★★ นี่คือส่วนที่แก้ไข ★★★★★ */
+/* ปรับปรุง Stats Grid (ดีไซน์ใหม่) */
 .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 15px;
+    display: flex; /* เปลี่ยนเป็น flex */
+    overflow-x: auto; /* ทำให้เลื่อนแนวนอนได้ */
+    gap: 12px; /* ลดช่องว่าง */
     margin-bottom: 20px;
+    padding-bottom: 10px; /* เว้นที่ให้ scrollbar */
 }
 
 .stat-card {
     background: white;
-    padding: 20px;
-    border-radius: 10px;
+    padding: 15px 10px; /* ลด padding */
+    border-radius: 10px; /* ลดความโค้ง */
     text-align: center;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    border-top: 3px solid #00B900;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08); /* เงานุ่มลง */
+    border-top: none; /* เอาเส้นบนออก */
+    transition: transform 0.2s ease;
+    flex: 0 0 100px; /* ★ สำคัญ: กว้าง 100px คงที่ */
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
 }
 
 .stat-number {
-    font-size: 2rem;
+    font-size: 2rem; /* ลดขนาดตัวเลข */
     font-weight: bold;
     color: #00B900;
+    margin-bottom: 0;
 }
 
 .stat-label {
-    color: #666;
-    font-size: 0.9rem;
+    color: #444;
+    font-size: 0.8rem; /* ลดขนาดตัวอักษร */
     margin-top: 5px;
+    line-height: 1.3;
 }
+/* ★★★★★ จบส่วนที่แก้ไข ★★★★★ */
+
 
 @media (max-width: 768px) {
     .container {
@@ -415,4 +428,8 @@ body {
     .task-actions .btn {
         justify-content: center;
     }
+    
+    /* โค้ด .stats-grid ที่บังคับ 1 คอลัมน์
+       ถูกลบออกจากตรงนี้แล้ว 
+    */
 }
