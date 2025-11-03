@@ -1,6 +1,7 @@
 // ตัวแปรสำหรับเก็บข้อมูล
 let tasks = JSON.parse(localStorage.getItem('studentTasks')) || [];
 let subjectsList = []; // สร้างตัวแปรไว้เก็บวิชา
+let currentEditingId = null; 
 
 // (ลบฟังก์ชัน LINE ออกไปแล้ว)
 
@@ -154,7 +155,7 @@ function updateStats() {
     `;
 }
 
-// เพิ่มงานใหม่ (แก้ไข)
+// เพิ่มงานใหม่ (แก้ไขให้รองรับการ Edit)
 function addTask() {
     const name = document.getElementById('taskName').value.trim();
     const assignedOn = document.getElementById('taskAssignedOn').value;
@@ -180,25 +181,41 @@ function addTask() {
         subject = "(ไม่มีวิชา)"; 
     }
 
-    const newTask = {
-        id: Date.now(),
-        name: name,
-        subject: subject,
-        assignedOn: assignedOn, 
-        due: due, 
-        priority: priority,
-        description: description,
-        completed: false,
-        createdAt: new Date().toISOString()
-    };
+    // --- ตรรกะใหม่ ---
+    if (currentEditingId !== null) {
+        // โหมดแก้ไข: หางานเดิมแล้วอัปเดต
+        const task = tasks.find(t => t.id === currentEditingId);
+        if (task) {
+            task.name = name;
+            task.subject = subject;
+            task.assignedOn = assignedOn;
+            task.due = due;
+            task.priority = priority;
+            task.description = description;
+        }
+        alert('✅ แก้ไขงานเรียบร้อย!');
+    } else {
+        // โหมดเพิ่มใหม่: สร้างงานใหม่
+        const newTask = {
+            id: Date.now(),
+            name: name,
+            subject: subject,
+            assignedOn: assignedOn, 
+            due: due, 
+            priority: priority,
+            description: description,
+            completed: false,
+            createdAt: new Date().toISOString()
+        };
+        tasks.push(newTask);
+        alert('✅ เพิ่มงานเรียบร้อย!');
+    }
+    // --- จบตรรกะใหม่ ---
 
-    tasks.push(newTask);
     saveTasks();
     renderTasks();
-    updateStats(); // ★★★ เพิ่มตรงนี้ (1/3) เพื่ออัปเดตสถิติทันที ★★★
-    clearForm();
-
-    alert('✅ เพิ่มงานเรียบร้อย!');
+    updateStats();
+    clearForm(); // clearForm จะรีเซ็ต currentEditingId ให้เอง
 }
 
 // บันทึกงาน (เหมือนเดิม)
@@ -206,7 +223,7 @@ function saveTasks() {
     localStorage.setItem('studentTasks', JSON.stringify(tasks));
 }
 
-// ล้างฟอร์ม (เหมือนเดิม)
+// ล้างฟอร์ม (แก้ไข)
 function clearForm() {
     document.getElementById('taskName').value = '';
     
@@ -220,6 +237,14 @@ function clearForm() {
     document.getElementById('taskDue').value = ''; 
     document.getElementById('taskPriority').value = 'normal';
     document.getElementById('taskDescription').value = '';
+
+    currentEditingId = null; 
+
+    // ★★★ เพิ่ม 3 บรรทัดนี้ (จุดที่ 1/2) ★★★
+    // (สลับปุ่มกลับเป็น "เพิ่มงาน" หลังจากบันทึกหรือล้างฟอร์ม)
+    const submitButton = document.getElementById('submitTaskButton');
+    submitButton.innerHTML = '➕ เพิ่มงาน';
+    submitButton.classList.remove('btn-warning'); // (ลบสีเหลืองออก)
 }
 
 // แสดงงาน (เหมือนเดิม)
@@ -338,31 +363,38 @@ function getPriorityText(priority) {
     return priorities[priority] || '🟢 ปกติ';
 }
 
-// เปลี่ยนสถานะงาน (แก้ไข)
+// เปลี่ยนสถานะงาน (เหมือนเดิม)
 function toggleTaskComplete(taskId) {
     const task = tasks.find(t => t.id === taskId);
     if (task) {
         task.completed = !task.completed;
         saveTasks();
         renderTasks();
-        updateStats(); // ★★★ เพิ่มตรงนี้ (2/3) เพื่ออัปเดตสถิติทันที ★★★
+        updateStats(); 
     }
 }
 
-// ลบงาน (แก้ไข)
+// ลบงาน (เหมือนเดิม)
 function deleteTask(taskId) {
+    // เพิ่มการตรวจสอบว่ากำลังแก้ไขอยู่หรือไม่
+    if (currentEditingId === taskId) {
+        alert('❌ ไม่สามารถลบงานที่กำลังแก้ไขได้');
+        return;
+    }
+    
     if (confirm('🗑️ คุณแน่ใจหรือไม่ที่จะลบงานนี้?')) {
         tasks = tasks.filter(t => t.id !== taskId);
         saveTasks();
         renderTasks();
-        updateStats(); // ★★★ เพิ่มตรงนี้ (3/3) เพื่ออัปเดตสถิติทันที ★★★
+        updateStats(); 
     }
 }
 
-// แก้ไขงาน (เหมือนเดิม)
+// แก้ไขงาน (แก้ไข)
 function editTask(taskId) {
     const task = tasks.find(t => t.id === taskId);
     if (task) {
+        // --- ส่วนที่ 1: เอาข้อมูลมาใส่ฟอร์ม (เหมือนเดิม) ---
         document.getElementById('taskName').value = task.name;
         
         const subjectDropdown = document.getElementById('taskSubject');
@@ -383,15 +415,22 @@ function editTask(taskId) {
         document.getElementById('taskPriority').value = task.priority;
         document.getElementById('taskDescription').value = task.description || '';
         
-        deleteTask(taskId); // หมายเหตุ: โค้ดนี้ใช้วิธีลบของเก่าแล้วสร้างใหม่
+        // --- ส่วนที่ 2: เปลี่ยนตรรกะใหม่ ---
+        currentEditingId = taskId; 
 
+        window.scrollTo(0, 0);
         document.getElementById('taskName').focus();
+
+        // ★★★ เพิ่ม 3 บรรทัดนี้ (จุดที่ 2/2) ★★★
+        // (สลับปุ่มเป็น "บันทึก" เมื่อกดแก้ไข)
+        const submitButton = document.getElementById('submitTaskButton');
+        submitButton.innerHTML = '💾 บันทึกการแก้ไข';
+        submitButton.classList.add('btn-warning'); // (เพิ่มสีเหลืองให้ปุ่ม)
     }
 }
 
 
-// ========== ⬇️ แก้ไข 4 ฟังก์ชันนี้ (ใช้ showNotification แทน alert) ⬇️ ==========
-// (เปลี่ยนจาก alert(message) เป็น showNotification(title, body))
+// ========== ⬇️ ฟังก์ชันแจ้งเตือน (เหมือนเดิม) ⬇️ ==========
 
 async function checkTodayTasks() {
     const today = new Date();
@@ -500,7 +539,7 @@ ${completionRate >= 80 ? '🎉 คุณทำงานได้ดีมาก!
 
     showNotification(title, body); // <-- เรียกใช้ฟังก์ชันใหม่
 }
-// ========== ⬆️ จบส่วนแก้ไข ⬆️ ==========
+// ========== ⬆️ จบส่วนแจ้งเตือน ⬆️ ==========
 
 
 // เริ่มต้นโปรแกรม (เหมือนเดิม)
@@ -508,4 +547,7 @@ document.addEventListener('DOMContentLoaded', function() {
     loadSubjects(); 
     renderTasks();
     updateStats();
+    
+    // เคลียร์ฟอร์ม เผื่อมีการรีเฟรชระหว่างแก้ไข
+    clearForm(); 
 });
