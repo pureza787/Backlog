@@ -131,26 +131,26 @@ function updateStats() {
         return dueDate < today && !t.completed;
     }).length;
 
-    document.getElementById('statsGrid').innerHTML = `
-        <div class="stat-card">
+document.getElementById('statsGrid').innerHTML = `
+        <div class="stat-card stat-total">
             <div class="stat-number">${totalTasks}</div>
             <div class="stat-label">งานทั้งหมด</div>
         </div>
-        <div class="stat-card">
+        <div class="stat-card stat-completed">
+            <div class="stat-number">${completedTasks}</div>
+            <div class="stat-label">เสร็จแล้ว</div>
+        </div>
+        <div class="stat-card stat-pending">
             <div class="stat-number">${pendingTasks}</div>
-            <div class="stat-label">งานที่รอทำ</div>
+            <div class="stat-label">รอดำเนินการ</div>
         </div>
-        <div class="stat-card">
-            <div class="stat-number">${todayTasks}</div>
-            <div class="stat-label">งานวันนี้</div>
-        </div>
-        <div class="stat-card">
+        <div class="stat-card stat-overdue">
             <div class="stat-number">${overdueTasks}</div>
             <div class="stat-label">เลยกำหนด</div>
         </div>
-        <div class="stat-card">
-            <div class="stat-number">${completedTasks}</div>
-            <div class="stat-label">เสร็จแล้ว</div>
+        <div class="stat-card stat-today">
+            <div class="stat-number">${todayTasks}</div>
+            <div class="stat-label">งานวันนี้</div>
         </div>
     `;
 }
