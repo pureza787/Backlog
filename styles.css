@@ -429,7 +429,47 @@ body {
         justify-content: center;
     }
     
-    /* โค้ด .stats-grid ที่บังคับ 1 คอลัมน์
-       ถูกลบออกจากตรงนี้แล้ว 
-    */
+    /* ------------------------------ */
+/* 🎨 สีใหม่สำหรับ Stat Cards */
+/* ------------------------------ */
+
+/* 1. งานทั้งหมด (สีฟ้า) */
+.stat-card.stat-total {
+    border-top-color: #007bff;
+}
+.stat-card.stat-total .stat-number {
+    color: #007bff;
+}
+
+/* 2. เสร็จแล้ว (สีเขียว) */
+.stat-card.stat-completed {
+    border-top-color: #28a745;
+}
+.stat-card.stat-completed .stat-number {
+    color: #28a745;
+}
+
+/* 3. รอดำเนินการ (สีส้ม) */
+.stat-card.stat-pending {
+    border-top-color: #fd7e14;
+}
+.stat-card.stat-pending .stat-number {
+    color: #fd7e14;
+}
+
+/* 4. เลยกำหนด (สีแดง) */
+.stat-card.stat-overdue {
+    border-top-color: #dc3545;
+}
+.stat-card.stat-overdue .stat-number {
+    color: #dc3545;
+}
+
+/* 5. งานวันนี้ (สีม่วง) */
+.stat-card.stat-today {
+    border-top-color: #6f42c1;
+}
+.stat-card.stat-today .stat-number {
+    color: #6f42c1;
+}
 }
